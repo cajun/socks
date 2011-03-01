@@ -9,11 +9,12 @@
 		code { font-family:courier; background:#eee; padding:2px 4px; }
 	</style>
 	<script src="http://cdn.socket.io/stable/socket.io.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
 	<script>
 
 		// Create SocketIO instance
-		var socket = new io.Socket('localhost',{
-			port: 8080
+		var socket = new io.Socket('zkleinpeter-ubuntu',{
+			port: 9090
 		});
 		socket.connect(); 
 		
@@ -22,8 +23,19 @@
 			log('<span style="color:green;">Client has connected to the server!</span>');
 		});
 		// Add a connect listener
-		socket.on('message',function(data) {
-			log('Received a message from the server:  ' + data);
+    socket.on('message',function(data) {
+      console.log(data);
+      console.log('buffer' in data);
+      if( 'buffer' in data ){
+        console.log( data.buffer )
+        for( var i in data.buffer ) {
+          if ('announcement' in data.buffer[i]) {
+            log('<em>' + data.buffer[i].announcement + '</em>');
+          } else log(data.buffer[i]);
+        }
+      } else if ('announcement' in data) {
+        log('<em>' + data.announcement + '</em>');
+      } else log(data);
 		});
 		// Add a disconnect listener
 		socket.on('disconnect',function() {
@@ -45,7 +57,7 @@
 		
 		/*
 		// Create a socket instance
-		socket = new WebSocket('ws://localhost:8080');
+		socket = new WebSocket('ws://localhost:9090');
 		
 		// Open the socket
 		socket.onopen = function(event) {
@@ -75,6 +87,20 @@
 		<li>Type <code>socket.connect()</code> to reconnect</li>
 		<li>Type <code>sendMessageToServer('Your Message')</code> to send a message to the server</li>
 	</ul>
-	
+  
+  <form action='/report' method='POST' >
+    <label for=url>Enter URL for Report</label>
+    <input type='url' name='url' />
+    <input type='submit', value='Submit' />
+  </form>
+
+  <script>
+    $(document).ready(function(){
+      $('form').submit(function(){
+        $.post('/report', $('form').serializeArray() );
+        return false;
+      });
+    });
+  </script>
 </body>
 </html>
