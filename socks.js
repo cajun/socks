@@ -56,25 +56,29 @@ function generate_json_report( params, res ){
 
   now = new Date().getTime().toString();
 
-  fs.writeFile('/tmp/' + now + '.head.html', obj.header, function(err){
+  head    = '/tmp/' + now + '.head.html'
+  foot    = '/tmp/' + now + '.footer.html'
+  content = '/tmp/' + now + '.content.html'
+  name    = '/tmp/' + now + '.pdf';
+
+  fs.writeFile(head, obj.header, function(err){
     if(err) sys.puts(err);
   });
-  fs.writeFile('/tmp/' + now + '.content.html', obj.content, function(err){
+  fs.writeFile(content, obj.content, function(err){
     if(err) sys.puts(err);
   });
-  fs.writeFile('/tmp/' + now + '.footer.html', obj.footer, function(err){
+  fs.writeFile(foot, obj.footer, function(err){
     if(err) sys.puts(err);
   });
 
-  name = now + '.pdf';
 
   args = [
     '--header-html',
-    '/tmp/' + now + '.head.html',
+    head,
     '--footer-html',
-    '/tmp/' + now + '.footer.html',
+    foot,
     '--header-spacing',
-    '5'
+    '6'
   ];
 
   if( 'cookie' in obj ) {
@@ -83,7 +87,7 @@ function generate_json_report( params, res ){
     args.push( obj.cookie.split(' ')[1] );
   }
 
-  args.push( '/tmp/' + now + '.content.html' );
+  args.push( content );
   args.push( name );
 
   console.log( args );
@@ -102,9 +106,29 @@ function generate_json_report( params, res ){
 
       res.writeHead(200, {"Content-disposition" : 'attachment; filename=report.pdf'});
       res.end(file, "binary");
+
+      fs.unlink(name, function(err){
+        if(err) throw err;
+        console.log('it be gone');
+      });
+
+      fs.unlink(head, function(err){
+        if(err) throw err;
+        console.log('it be gone');
+      });
+
+      fs.unlink(foot, function(err){
+        if(err) throw err;
+        console.log('it be gone');
+      });
+
+      fs.unlink(content, function(err){
+        if(err) throw err;
+        console.log('it be gone');
+      });
+
     });
   });
-
 }
 
 function generate_report( params, res ){
@@ -130,6 +154,7 @@ function generate_report( params, res ){
 
       res.writeHead(200, {"Content-disposition" : 'attachment; filename=report.pdf'});
       res.end(file, "binary");
+
     });
   });
 }
