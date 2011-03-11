@@ -8,6 +8,7 @@ var http        = require('http'),
     fs          = require("fs"),
     spawn       = require("child_process").spawn,
     events      = require("events"),
+    paths       = require('./paths'),
     messages    = [];
 
 // Start the server at port 9090
@@ -23,33 +24,6 @@ var server = http.createServer(function(req, res){
 });
 
 server.listen(9090);
-
-paths = {
-  '/' : function(req,res){
-    // Send HTML headers and message
-    res.writeHead(200,{ 'Content-Type': 'text/html' });
-    res.end('<h1>Hello Socket Lover!</h1>');
-  },
-  '/report' : function(req,res){
-    req.on('data', function(chunk){
-      req.content.push( chunk );
-    });
-
-    req.on('end', function(){
-      params = parse_params( req.content );
-      generate_report( params, res );
-    });
-  },
-  '/report.json' : function(req,res){
-    req.on('data', function(chunk){
-      req.content.push( chunk );
-    });
-
-    req.on('end', function(){
-      generate_json_report( req.content.join(''), res );
-    });
-  },
-};
 
 function generate_json_report( params, res ){
   obj = querystring.parse( params );
