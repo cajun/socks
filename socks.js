@@ -8,7 +8,6 @@ var http        = require('http'),
     fs          = require("fs"),
     spawn       = require("child_process").spawn,
     events      = require("events"),
-    paths       = require('./paths'),
     messages    = [];
 
 // Start the server at port 9090
@@ -25,6 +24,32 @@ var server = http.createServer(function(req, res){
 
 server.listen(9090);
 
+var paths = {
+  '/' : function(req,res){
+    // Send HTML headers and message
+    res.writeHead(200,{ 'Content-Type': 'text/html' });
+    res.end('<h1>Hello Socket Lover!</h1>');
+  },
+  '/report' : function(req,res){
+    req.on('data', function(chunk){
+      req.content.push( chunk );
+    });
+
+    req.on('end', function(){
+      params = parse_params( req.content );
+      generate_report( params, res );
+    });
+  },
+  '/report.json' : function(req,res){
+    req.on('data', function(chunk){
+      req.content.push( chunk );
+    });
+
+    req.on('end', function(){
+      generate_json_report( req.content.join(''), res );
+    });
+  },
+};
 function generate_json_report( params, res ){
   obj = querystring.parse( params );
 
@@ -81,11 +106,6 @@ function generate_json_report( params, res ){
       res.writeHead(200, {"Content-disposition" : 'attachment; filename=report.pdf'});
       res.end(file, "binary");
 
-      fs.unlink(name, function(err){
-        if(err) throw err;
-        console.log('it be gone');
-      });
-
       fs.unlink(head, function(err){
         if(err) throw err;
         console.log('it be gone');
@@ -97,6 +117,11 @@ function generate_json_report( params, res ){
       });
 
       fs.unlink(content, function(err){
+        if(err) throw err;
+        console.log('it be gone');
+      });
+
+      fs.unlink(name, function(err){
         if(err) throw err;
         console.log('it be gone');
       });
