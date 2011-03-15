@@ -8,6 +8,7 @@ var http        = require('http'),
     fs          = require("fs"),
     spawn       = require("child_process").spawn,
     events      = require("events"),
+    uuid        = require('node-uuid'),
     messages    = [];
 
 // Start the server at port 9090
@@ -53,7 +54,7 @@ var paths = {
 function generate_json_report( params, res ){
   obj = querystring.parse( params );
 
-  now = new Date().getTime().toString();
+  now = uuid();
 
   head    = '/tmp/' + now + '.head.html'
   foot    = '/tmp/' + now + '.footer.html'
@@ -131,7 +132,7 @@ function generate_json_report( params, res ){
 }
 
 function generate_report( params, res ){
-  name = new Date().getTime().toString() + '.pdf';
+  name = uuid() + '.pdf';
   args = parse_args( params );
 
   args.push( '--enable-forms' );
